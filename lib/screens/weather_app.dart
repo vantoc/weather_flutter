@@ -1,12 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:transformer_page_view/transformer_page_view.dart';
 import 'package:weather_flutter/models/weather_locations.dart';
+import 'package:weather_flutter/widgets/buildin_transform.dart';
 import 'package:weather_flutter/widgets/single_weather.dart';
+import 'package:weather_flutter/widgets/slider_dot.dart';
 
-class WeatherApp extends StatelessWidget {
+class WeatherApp extends StatefulWidget {
+  @override
+  State<WeatherApp> createState() => _WeatherAppState();
+}
+
+class _WeatherAppState extends State<WeatherApp> {
+  int _currentPage = 0;
+  late String bgImg;
+
+  _onPageChange(int index) {
+    setState(() {
+      _currentPage = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (locationList[_currentPage].weatherType == 'Sunny') {
+      bgImg = 'assets/sunny.jpg';
+    } else if (locationList[_currentPage].weatherType == 'Night') {
+      bgImg = 'assets/night.jpg';
+    } else if (locationList[_currentPage].weatherType == 'Rainy') {
+      bgImg = 'assets/rainy.jpg';
+    } else if (locationList[_currentPage].weatherType == 'Cloudy') {
+      bgImg = 'assets/cloudy.jpeg';
+    }
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -40,7 +65,7 @@ class WeatherApp extends StatelessWidget {
         child: Stack(
           children: [
             Image.asset(
-              'assets/night.jpg',
+              bgImg,
               fit: BoxFit.cover,
               height: double.infinity,
               width: double.infinity,
@@ -57,55 +82,19 @@ class WeatherApp extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 5),
-                    width: 12,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.white54,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(5),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 5),
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.white54,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(5),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 5),
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.white54,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(5),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 5),
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.white54,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(5),
-                      ),
-                    ),
-                  ),
+                  for (int i = 0; i < locationList.length; i++)
+                    if (i == _currentPage)
+                      SliderDot(true)
+                    else
+                      SliderDot(false),
                 ],
               ),
             ),
-            PageView.builder(
+            TransformerPageView(
               scrollDirection: Axis.horizontal,
+              transformer: ScaleAndFadeTransformer(),
+              viewportFraction: 0.8,
+              onPageChanged: (i) => _onPageChange(i),
               itemCount: locationList.length,
               itemBuilder: (ctx, i) => SingleWeather(i),
             ),
